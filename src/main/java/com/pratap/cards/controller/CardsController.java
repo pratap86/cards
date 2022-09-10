@@ -1,7 +1,12 @@
 package com.pratap.cards.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.pratap.cards.config.CardsServiceConfig;
 import com.pratap.cards.model.Cards;
 import com.pratap.cards.model.Customer;
+import com.pratap.cards.model.Properties;
 import com.pratap.cards.repository.CardsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,11 +24,23 @@ public class CardsController {
     @Autowired
     private CardsRepository cardsRepository;
 
+    @Autowired
+    private CardsServiceConfig cardsServiceConfig;
+
     @GetMapping("/myCards")
     public ResponseEntity<List<Cards>> getCardDetails(@RequestBody Customer customer) {
         List<Cards> cards = cardsRepository.findByCustomerId(customer.getCustomerId());
         if (cards != null && !cards.isEmpty())
             return new ResponseEntity<>(cards, HttpStatus.FOUND);
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/properties")
+    public String getPropertiesDetails() throws JsonProcessingException {
+
+        ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        Properties properties = new Properties(cardsServiceConfig.getMsg(), cardsServiceConfig.getBuildVersion(),
+                cardsServiceConfig.getMailDetails(), cardsServiceConfig.getActiveBranches());
+        return objectWriter.writeValueAsString(properties);
     }
 }
