@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +28,8 @@ public class CardsController {
     private CardsServiceConfig cardsServiceConfig;
 
     @GetMapping("/myCards")
-    public ResponseEntity<List<Cards>> getCardDetails(@RequestParam int customerId) {
+    public ResponseEntity<List<Cards>> getCardDetails(@RequestHeader("narayanbank-correlation-id") String correlationId,
+                                                      @RequestParam int customerId) {
         List<Cards> cards = cardsRepository.findByCustomerId(customerId);
         if (cards != null && !cards.isEmpty())
             return new ResponseEntity<>(cards, HttpStatus.OK);
